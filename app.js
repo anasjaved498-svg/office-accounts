@@ -134,11 +134,11 @@ const state = {
   workflowOrder: []
 };
 
-const $ = (s, root = document) => root.querySelector(s);
+const $ = (s, root = document) =>
+  root.querySelector(s);
 
-const $$ = (s, root = document) => [
-  ...root.querySelectorAll(s)
-];
+const $$ = (s, root = document) =>
+  [...root.querySelectorAll(s)];
 
 const esc = (v = '') =>
   String(v).replace(
@@ -168,7 +168,8 @@ const navigate = r => {
 
 function parseRoute() {
   const raw =
-    location.hash.replace(/^#\/?/, '') || 'dashboard';
+    location.hash.replace(/^#\/?/, '') ||
+    'dashboard';
 
   const [page, id] = raw.split('/');
 
@@ -179,14 +180,25 @@ function parseRoute() {
 }
 
 function deviceColor(d) {
-  const key = String(d?.identifier || '').toLowerCase();
+  const key =
+    String(d?.identifier || '').toLowerCase();
 
-  if (key.includes('device #1')) return '#2563eb';
-  if (key.includes('device #2')) return '#c47a1b';
-  if (key.includes('device #3')) return '#4f9b68';
+  if (key.includes('device #1')) {
+    return '#2563eb';
+  }
+
+  if (key.includes('device #2')) {
+    return '#c47a1b';
+  }
+
+  if (key.includes('device #3')) {
+    return '#4f9b68';
+  }
 
   return (
-    DEVICE_COLORS.find(x => x[0] === d?.color)?.[2] ||
+    DEVICE_COLORS.find(
+      x => x[0] === d?.color
+    )?.[2] ||
     d?.color ||
     '#2563eb'
   );
@@ -194,21 +206,31 @@ function deviceColor(d) {
 
 function deviceName(id) {
   return (
-    state.data.devices.find(d => d.id === id)?.name ||
+    state.data.devices.find(
+      d => d.id === id
+    )?.name ||
     'Unknown device'
   );
 }
 
 function manager(id) {
-  return state.data.managers.find(m => m.id === id);
+  return state.data.managers.find(
+    m => m.id === id
+  );
 }
 
 function managerName(id) {
-  return manager(id)?.name || 'Unassigned';
+  return (
+    manager(id)?.name ||
+    'Unassigned'
+  );
 }
 
 function managerColor(id) {
-  return manager(id)?.color || '#64748b';
+  return (
+    manager(id)?.color ||
+    '#64748b'
+  );
 }
 
 function customEntries(obj) {
@@ -236,13 +258,18 @@ const WORKFLOW_ORDER_KEY =
   'tiktokOfficeWorkflowDeviceOrder';
 
 function ensureWorkflowOrder() {
-  const ids = state.data.devices.map(d => d.id);
+  const ids =
+    state.data.devices.map(
+      d => d.id
+    );
 
   let saved = [];
 
   try {
     saved = JSON.parse(
-      localStorage.getItem(WORKFLOW_ORDER_KEY) || '[]'
+      localStorage.getItem(
+        WORKFLOW_ORDER_KEY
+      ) || '[]'
     );
   } catch (_) {}
 
@@ -251,14 +278,20 @@ function ensureWorkflowOrder() {
   }
 
   state.workflowOrder = [
-    ...saved.filter(id => ids.includes(id)),
-    ...ids.filter(id => !saved.includes(id))
+    ...saved.filter(
+      id => ids.includes(id)
+    ),
+    ...ids.filter(
+      id => !saved.includes(id)
+    )
   ];
 
   try {
     localStorage.setItem(
       WORKFLOW_ORDER_KEY,
-      JSON.stringify(state.workflowOrder)
+      JSON.stringify(
+        state.workflowOrder
+      )
     );
   } catch (_) {}
 }
@@ -267,7 +300,9 @@ function orderedDevices() {
   ensureWorkflowOrder();
 
   const byId = new Map(
-    state.data.devices.map(d => [d.id, d])
+    state.data.devices.map(
+      d => [d.id, d]
+    )
   );
 
   return state.workflowOrder
@@ -275,25 +310,45 @@ function orderedDevices() {
     .filter(Boolean);
 }
 
-function moveWorkflowDevice(id, direction) {
+function moveWorkflowDevice(
+  id,
+  direction
+) {
   ensureWorkflowOrder();
 
-  const arr = [...state.workflowOrder];
+  const arr = [
+    ...state.workflowOrder
+  ];
 
-  const i = arr.indexOf(id);
+  const i =
+    arr.indexOf(id);
 
-  if (i < 0) return;
+  if (i < 0) {
+    return;
+  }
 
   const j =
     direction === 'up'
       ? i - 1
       : i + 1;
 
-  if (j < 0 || j >= arr.length) return;
+  if (
+    j < 0 ||
+    j >= arr.length
+  ) {
+    return;
+  }
 
-  [arr[i], arr[j]] = [arr[j], arr[i]];
+  [
+    arr[i],
+    arr[j]
+  ] = [
+    arr[j],
+    arr[i]
+  ];
 
-  state.workflowOrder = arr;
+  state.workflowOrder =
+    arr;
 
   try {
     localStorage.setItem(
@@ -316,9 +371,10 @@ async function load() {
   render();
 
   if (!configured) {
-    state.data = JSON.parse(
-      JSON.stringify(demo)
-    );
+    state.data =
+      JSON.parse(
+        JSON.stringify(demo)
+      );
 
     ensureWorkflowOrder();
 
@@ -338,7 +394,11 @@ async function load() {
   }
 
   try {
-    const [m, d, a] = await Promise.all([
+    const [
+      m,
+      d,
+      a
+    ] = await Promise.all([
       supabase
         .from('team_members')
         .select('*')
@@ -355,14 +415,27 @@ async function load() {
         .order('created_at')
     ]);
 
-    if (m.error) throw m.error;
-    if (d.error) throw d.error;
-    if (a.error) throw a.error;
+    if (m.error) {
+      throw m.error;
+    }
+
+    if (d.error) {
+      throw d.error;
+    }
+
+    if (a.error) {
+      throw a.error;
+    }
 
     state.data = {
-      managers: m.data || [],
-      devices: d.data || [],
-      accounts: a.data || []
+      managers:
+        m.data || [],
+
+      devices:
+        d.data || [],
+
+      accounts:
+        a.data || []
     };
 
     ensureWorkflowOrder();
@@ -394,18 +467,20 @@ async function save(
 
     if (id) {
       state.data[key] =
-        state.data[key].map(x =>
-          x.id === id
-            ? {
-                ...x,
-                ...payload
-              }
-            : x
+        state.data[key].map(
+          x =>
+            x.id === id
+              ? {
+                  ...x,
+                  ...payload
+                }
+              : x
         );
     } else {
       state.data[key].push({
         ...payload,
-        id: `${key[0]}${Date.now()}`
+        id:
+          `${key[0]}${Date.now()}`
       });
     }
 
@@ -425,7 +500,9 @@ async function save(
         .select()
         .single();
 
-  const { error } = await q;
+  const {
+    error
+  } = await q;
 
   if (error) {
     throw error;
@@ -439,7 +516,9 @@ async function remove(
   id
 ) {
   if (!configured) {
-    if (table === 'devices') {
+    if (
+      table === 'devices'
+    ) {
       state.data.devices =
         state.data.devices.filter(
           x => x.id !== id
@@ -447,7 +526,8 @@ async function remove(
 
       state.data.accounts =
         state.data.accounts.filter(
-          x => x.device_id !== id
+          x =>
+            x.device_id !== id
         );
     } else if (
       table === 'team_members'
@@ -458,13 +538,14 @@ async function remove(
         );
 
       state.data.accounts =
-        state.data.accounts.map(a =>
-          a.manager_id === id
-            ? {
-                ...a,
-                manager_id: null
-              }
-            : a
+        state.data.accounts.map(
+          a =>
+            a.manager_id === id
+              ? {
+                  ...a,
+                  manager_id: null
+                }
+              : a
         );
     } else {
       state.data.accounts =
@@ -476,7 +557,9 @@ async function remove(
     return;
   }
 
-  const { error } =
+  const {
+    error
+  } =
     await supabase
       .from(table)
       .delete()
@@ -489,7 +572,10 @@ async function remove(
   await load();
 }
 
-async function act(fn, msg) {
+async function act(
+  fn,
+  msg
+) {
   try {
     await fn();
 
@@ -502,7 +588,8 @@ async function act(fn, msg) {
     toast(msg);
   } catch (e) {
     toast(
-      e.message || 'Action failed',
+      e.message ||
+        'Action failed',
       'error'
     );
   }
@@ -523,7 +610,9 @@ async function boot() {
           'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
         );
 
-      if (!mod?.createClient) {
+      if (
+        !mod?.createClient
+      ) {
         throw new Error(
           'Supabase client library did not load.'
         );
@@ -549,7 +638,7 @@ async function boot() {
         data.session;
 
       $('#signOutBtn')
-        ?.classList
+        .classList
         .remove('hidden');
 
       supabase.auth.onAuthStateChange(
@@ -588,39 +677,46 @@ function bindStatic() {
   window.addEventListener(
     'hashchange',
     () => {
-      state.route = parseRoute();
-      state.mobileOpen = false;
-      render();
-    }
-  );
+      state.route =
+        parseRoute();
 
-  $('#globalSearch')?.addEventListener(
-    'input',
-    e => {
-      state.search =
-        e.target.value;
+      state.mobileOpen =
+        false;
 
       render();
     }
   );
 
-  $('#refreshBtn')?.addEventListener(
-    'click',
-    () =>
-      act(
-        load,
-        'Data refreshed'
-      )
-  );
+  $('#globalSearch')
+    .addEventListener(
+      'input',
+      e => {
+        state.search =
+          e.target.value;
 
-  $('#topAddBtn')?.addEventListener(
-    'click',
-    () =>
-      openModal('account')
-  );
+        render();
+      }
+    );
+
+  $('#refreshBtn')
+    .addEventListener(
+      'click',
+      () =>
+        act(
+          load,
+          'Data refreshed'
+        )
+    );
+
+  $('#topAddBtn')
+    .addEventListener(
+      'click',
+      () =>
+        openModal('account')
+    );
 
   $('#sideAddAccount')
-    ?.addEventListener(
+    .addEventListener(
       'click',
       () => {
         closeSide();
@@ -628,24 +724,29 @@ function bindStatic() {
       }
     );
 
-  $('#openSide')?.addEventListener(
-    'click',
-    () => openSide()
-  );
+  $('#openSide')
+    .addEventListener(
+      'click',
+      () =>
+        openSide()
+    );
 
-  $('#closeSide')?.addEventListener(
-    'click',
-    () => closeSide()
-  );
+  $('#closeSide')
+    .addEventListener(
+      'click',
+      () =>
+        closeSide()
+    );
 
   $('#sideOverlay')
-    ?.addEventListener(
+    .addEventListener(
       'click',
-      () => closeSide()
+      () =>
+        closeSide()
     );
 
   $('#signOutBtn')
-    ?.addEventListener(
+    .addEventListener(
       'click',
       async () => {
         if (configured) {
@@ -655,38 +756,41 @@ function bindStatic() {
     );
 
   $$('#nav [data-route]')
-    .forEach(b =>
-      b.addEventListener(
-        'click',
-        () =>
-          navigate(
-            b.dataset.route
-          )
-      )
+    .forEach(
+      b =>
+        b.addEventListener(
+          'click',
+          () =>
+            navigate(
+              b.dataset.route
+            )
+        )
     );
 }
 
 function openSide() {
-  state.mobileOpen = true;
+  state.mobileOpen =
+    true;
 
   $('#sidebar')
-    ?.classList
+    .classList
     .add('open');
 
   $('#sideOverlay')
-    ?.classList
+    .classList
     .add('show');
 }
 
 function closeSide() {
-  state.mobileOpen = false;
+  state.mobileOpen =
+    false;
 
   $('#sidebar')
-    ?.classList
+    .classList
     .remove('open');
 
   $('#sideOverlay')
-    ?.classList
+    .classList
     .remove('show');
 }
 
@@ -701,7 +805,7 @@ function render() {
     .add('hidden');
 
   $('#app')
-    ?.classList
+    .classList
     .remove('hidden');
 
   if (
@@ -709,7 +813,7 @@ function render() {
     !state.session
   ) {
     $('#app')
-      ?.classList
+      .classList
       .add('hidden');
 
     renderAuth();
@@ -718,7 +822,7 @@ function render() {
   }
 
   $('#auth')
-    ?.classList
+    .classList
     .add('hidden');
 
   updateSide();
@@ -729,7 +833,9 @@ function render() {
     $('#view').innerHTML = `
       <div class="loading">
         <div class="spinner"></div>
-        <span>Loading office data…</span>
+        <span>
+          Loading office data…
+        </span>
       </div>
     `;
 
@@ -743,20 +849,23 @@ function render() {
 }
 
 function renderAuth() {
-  $('#auth').classList.remove(
-    'hidden'
-  );
+  $('#auth')
+    .classList
+    .remove('hidden');
 
   $('#auth').innerHTML = `
     <div class="auth-card">
-      <div class="brand-icon big">OC</div>
+
+      <div class="brand-icon big">
+        TH
+      </div>
 
       <span class="eyebrow">
-        OFFICE ACCESS
+        TIKTOK HUB ACCESS
       </span>
 
       <h2>
-        TikTok Command Center
+        TikTok Hub
       </h2>
 
       <p>
@@ -768,6 +877,7 @@ function renderAuth() {
         id="loginForm"
         class="form-stack"
       >
+
         <label>
           Email
 
@@ -801,6 +911,7 @@ function renderAuth() {
         >
           Sign in
         </button>
+
       </form>
 
       <div class="auth-tip">
@@ -808,6 +919,7 @@ function renderAuth() {
         Authentication → Users account.
         Do not use the service-role key.
       </div>
+
     </div>
   `;
 
@@ -852,32 +964,35 @@ function renderAuth() {
     );
 }
 
-
-/* =========================================================
-   SIDEBAR / TOPBAR
-========================================================= */
-
 function updateSide() {
-  $('#deviceCount').textContent =
+  $('#deviceCount')
+    .textContent =
     state.data.devices.length;
 
-  $('#accountCount').textContent =
+  $('#accountCount')
+    .textContent =
     state.data.accounts.length;
 
-  $('#managerCount').textContent =
+  $('#managerCount')
+    .textContent =
     state.data.managers.length;
 
-  $('#deviceShortcuts').innerHTML =
+  $('#deviceShortcuts')
+    .innerHTML =
     state.data.devices
       .map(
-        d => `
+        d =>
+          `
           <button
             class="device-shortcut"
             data-open-device="${d.id}"
           >
+
             <i
               class="device-dot"
-              style="background:${deviceColor(d)}"
+              style="
+                background:${deviceColor(d)}
+              "
             ></i>
 
             <span>
@@ -887,29 +1002,33 @@ function updateSide() {
             <em>
               ${countDevice(d.id)}
             </em>
+
           </button>
-        `
+          `
       )
       .join('');
 
   $$('.device-shortcut')
-    .forEach(b =>
-      b.onclick = () =>
-        navigate(
-          `device/${b.dataset.openDevice}`
-        )
+    .forEach(
+      b =>
+        b.onclick = () =>
+          navigate(
+            `device/${b.dataset.openDevice}`
+          )
     );
 
   $$('#nav .nav-item')
-    .forEach(b =>
-      b.classList.toggle(
-        'active',
-        b.dataset.route ===
-          state.route.page
-      )
+    .forEach(
+      b =>
+        b.classList.toggle(
+          'active',
+          b.dataset.route ===
+            state.route.page
+        )
     );
 
-  $('#connectionState').textContent =
+  $('#connectionState')
+    .textContent =
     configured
       ? (
           state.dbError
@@ -931,7 +1050,8 @@ function updateTop() {
     manager: 'Team Member'
   };
 
-  $('#crumbs').textContent =
+  $('#crumbs')
+    .textContent =
     `Office / ${
       labels[state.route.page] ||
       'Dashboard'
@@ -942,7 +1062,7 @@ function updateTop() {
     }`;
 
   let title =
-    'Command Center';
+    'TikTok Hub';
 
   if (
     state.route.page ===
@@ -1006,7 +1126,8 @@ function updateTop() {
       'Team Member';
   }
 
-  $('#pageTitle').textContent =
+  $('#pageTitle')
+    .textContent =
     title;
 }
 
@@ -1016,7 +1137,10 @@ function renderAlerts() {
   if (!configured) {
     bits.push(`
       <div class="alert demo">
-        <b>Demo mode</b>
+
+        <b>
+          Demo mode
+        </b>
 
         <span>
           Connect Supabase in
@@ -1024,6 +1148,7 @@ function renderAlerts() {
           to make data persistent
           across devices.
         </span>
+
       </div>
     `);
   }
@@ -1031,16 +1156,23 @@ function renderAlerts() {
   if (state.dbError) {
     bits.push(`
       <div class="alert error">
-        <b>Supabase error</b>
+
+        <b>
+          Supabase error
+        </b>
 
         <span>
-          ${esc(state.dbError)}
+          ${esc(
+            state.dbError
+          )}
         </span>
+
       </div>
     `);
   }
 
-  $('#alerts').innerHTML =
+  $('#alerts')
+    .innerHTML =
     bits.join('');
 }
 
@@ -1101,6 +1233,7 @@ function dashboardPage() {
       <section class="hero">
 
         <div>
+
           <span class="eyebrow">
             OFFICE OPERATIONS
           </span>
@@ -1135,15 +1268,27 @@ function dashboardPage() {
             </button>
 
           </div>
+
         </div>
 
         <div class="live-box">
-          <span>LIVE</span>
-          <b>${active}</b>
-          <small>active accounts</small>
+
+          <span>
+            LIVE
+          </span>
+
+          <b>
+            ${active}
+          </b>
+
+          <small>
+            active accounts
+          </small>
+
         </div>
 
       </section>
+
 
       <section class="stats">
 
@@ -1151,11 +1296,14 @@ function dashboardPage() {
           class="stat"
           data-nav="devices"
         >
+
           <span class="stat-icon">
             ▣
           </span>
 
-          <span>Devices</span>
+          <span>
+            Devices
+          </span>
 
           <b>
             ${state.data.devices.length}
@@ -1164,15 +1312,21 @@ function dashboardPage() {
           <small>
             mobile devices
           </small>
+
         </button>
 
         <button
           class="stat"
           data-nav="accounts"
         >
-          <span class="stat-icon">@</span>
 
-          <span>Accounts</span>
+          <span class="stat-icon">
+            @
+          </span>
+
+          <span>
+            Accounts
+          </span>
 
           <b>
             ${state.data.accounts.length}
@@ -1181,17 +1335,21 @@ function dashboardPage() {
           <small>
             TikTok accounts
           </small>
+
         </button>
 
         <button
           class="stat"
           data-nav="managers"
         >
+
           <span class="stat-icon">
             ◎
           </span>
 
-          <span>Team</span>
+          <span>
+            Team
+          </span>
 
           <b>
             ${state.data.managers.length}
@@ -1200,18 +1358,27 @@ function dashboardPage() {
           <small>
             account managers
           </small>
+
         </button>
 
         <div class="stat">
-          <span class="stat-icon">✓</span>
 
-          <span>Active</span>
+          <span class="stat-icon">
+            ✓
+          </span>
 
-          <b>${active}</b>
+          <span>
+            Active
+          </span>
+
+          <b>
+            ${active}
+          </b>
 
           <small>
             accounts active
           </small>
+
         </div>
 
       </section>
@@ -1224,6 +1391,7 @@ function dashboardPage() {
           <div class="panel-head">
 
             <div>
+
               <span class="eyebrow">
                 DEVICE OVERVIEW
               </span>
@@ -1231,6 +1399,7 @@ function dashboardPage() {
               <h3>
                 Mobile devices
               </h3>
+
             </div>
 
             <button
@@ -1246,7 +1415,10 @@ function dashboardPage() {
 
             ${
               state.data.devices
-                .map(d => deviceRow(d))
+                .map(
+                  d =>
+                    deviceRow(d)
+                )
                 .join('') ||
               emptyBlock(
                 'No devices',
@@ -1264,6 +1436,7 @@ function dashboardPage() {
           <div class="panel-head">
 
             <div>
+
               <span class="eyebrow">
                 TEAM
               </span>
@@ -1271,6 +1444,7 @@ function dashboardPage() {
               <h3>
                 Managers
               </h3>
+
             </div>
 
             <button
@@ -1286,7 +1460,10 @@ function dashboardPage() {
 
             ${
               state.data.managers
-                .map(m => managerRow(m))
+                .map(
+                  m =>
+                    managerRow(m)
+                )
                 .join('') ||
               emptyBlock(
                 'No team members',
@@ -1316,8 +1493,9 @@ function dashboardPage() {
             </h3>
 
             <p>
-              Each choice opens a separate page.
-              Changes stay synced through Supabase.
+              Each choice opens a separate
+              page. Changes stay synced
+              through Supabase.
             </p>
 
           </div>
@@ -1329,9 +1507,13 @@ function dashboardPage() {
           <button
             data-nav="workflow"
           >
-            <b>⌁</b>
+
+            <b>
+              ⌁
+            </b>
 
             <span>
+
               <strong>
                 Full workflow
               </strong>
@@ -1339,6 +1521,7 @@ function dashboardPage() {
               <small>
                 Device → Account → Team
               </small>
+
             </span>
 
             →
@@ -1347,9 +1530,13 @@ function dashboardPage() {
           <button
             data-nav="devices"
           >
-            <b>▣</b>
+
+            <b>
+              ▣
+            </b>
 
             <span>
+
               <strong>
                 Device
               </strong>
@@ -1357,6 +1544,7 @@ function dashboardPage() {
               <small>
                 Open a mobile workspace
               </small>
+
             </span>
 
             →
@@ -1365,9 +1553,13 @@ function dashboardPage() {
           <button
             data-nav="accounts"
           >
-            <b>@</b>
+
+            <b>
+              @
+            </b>
 
             <span>
+
               <strong>
                 Account
               </strong>
@@ -1375,6 +1567,7 @@ function dashboardPage() {
               <small>
                 Open account + Gmail
               </small>
+
             </span>
 
             →
@@ -1383,9 +1576,13 @@ function dashboardPage() {
           <button
             data-nav="managers"
           >
-            <b>◎</b>
+
+            <b>
+              ◎
+            </b>
 
             <span>
+
               <strong>
                 Team member
               </strong>
@@ -1393,6 +1590,7 @@ function dashboardPage() {
               <small>
                 Open her manager page
               </small>
+
             </span>
 
             →
@@ -1441,7 +1639,9 @@ function deviceRow(d) {
 
       <i
         class="device-dot big"
-        style="background:${deviceColor(d)}"
+        style="
+          background:${deviceColor(d)}
+        "
       ></i>
 
       <span>
@@ -1464,7 +1664,9 @@ function deviceRow(d) {
         accounts
       </em>
 
-      <b>›</b>
+      <b>
+        ›
+      </b>
 
     </button>
   `;
@@ -1484,7 +1686,9 @@ function managerRow(m) {
           color:${m.color}
         "
       >
-        ${esc(initials(m.name))}
+        ${esc(
+          initials(m.name)
+        )}
       </i>
 
       <span>
@@ -1507,7 +1711,9 @@ function managerRow(m) {
         accounts
       </em>
 
-      <b>›</b>
+      <b>
+        ›
+      </b>
 
     </button>
   `;
@@ -1554,7 +1760,10 @@ function devicesPage() {
 
         ${
           state.data.devices
-            .map(d => deviceCard(d))
+            .map(
+              d =>
+                deviceCard(d)
+            )
             .join('') ||
           emptyBlock(
             'No devices',
@@ -1574,18 +1783,27 @@ function deviceCard(d) {
 
       <i
         class="entity-line"
-        style="background:${deviceColor(d)}"
+        style="
+          background:${deviceColor(d)}
+        "
       ></i>
 
       <div class="entity-top">
 
         <i
           class="device-dot big"
-          style="background:${deviceColor(d)}"
+          style="
+            background:${deviceColor(d)}
+          "
         ></i>
 
-        <span class="status-chip green">
-          ${esc(d.status || 'Active')}
+        <span
+          class="status-chip green"
+        >
+          ${esc(
+            d.status ||
+            'Active'
+          )}
         </span>
 
         <button
@@ -1651,7 +1869,9 @@ function deviceCard(d) {
 function devicePage() {
   const d =
     state.data.devices.find(
-      x => x.id === state.route.id
+      x =>
+        x.id ===
+        state.route.id
     );
 
   if (!d) {
@@ -1663,7 +1883,9 @@ function devicePage() {
 
   const ac =
     state.data.accounts.filter(
-      a => a.device_id === d.id
+      a =>
+        a.device_id ===
+        d.id
     );
 
   return `
@@ -1681,7 +1903,9 @@ function devicePage() {
         <div class="detail-title">
 
           <i
-            style="background:${deviceColor(d)}"
+            style="
+              background:${deviceColor(d)}
+            "
           ></i>
 
           <div>
@@ -1699,7 +1923,8 @@ function devicePage() {
                 d.identifier ||
                 'No identifier'
               )}
-              · ${ac.length} accounts
+              · ${ac.length}
+              accounts
             </p>
 
           </div>
@@ -1790,8 +2015,12 @@ function devicePage() {
 
             ${
               ac
-                .map(a =>
-                  accountFlow(a, d)
+                .map(
+                  a =>
+                    accountFlow(
+                      a,
+                      d
+                    )
                 )
                 .join('') ||
               emptyBlock(
@@ -1827,17 +2056,20 @@ function devicePage() {
 
             ${fact(
               'Identifier',
-              d.identifier || '—'
+              d.identifier ||
+                '—'
             )}
 
             ${fact(
               'Status',
-              d.status || 'Active'
+              d.status ||
+                'Active'
             )}
 
             ${fact(
               'Notes',
-              d.notes || 'No notes'
+              d.notes ||
+                'No notes'
             )}
 
             ${customFacts(
@@ -1917,7 +2149,9 @@ function accountFlow(a, d) {
         )}
       </span>
 
-      <div class="manager-mini">
+      <div
+        class="manager-mini"
+      >
 
         <i
           class="avatar tiny"
@@ -1975,8 +2209,12 @@ function accountsPage() {
           a.content_name,
           a.status,
           a.notes,
-          deviceName(a.device_id),
-          managerName(a.manager_id),
+          deviceName(
+            a.device_id
+          ),
+          managerName(
+            a.manager_id
+          ),
           JSON.stringify(
             a.custom_fields
           )
@@ -2028,13 +2266,33 @@ function accountsPage() {
             <thead>
 
               <tr>
-                <th>ACCOUNT</th>
-                <th>DEVICE</th>
-                <th>GMAIL</th>
-                <th>CONTENT</th>
-                <th>MANAGER</th>
-                <th>STATUS</th>
+
+                <th>
+                  ACCOUNT
+                </th>
+
+                <th>
+                  DEVICE
+                </th>
+
+                <th>
+                  GMAIL
+                </th>
+
+                <th>
+                  CONTENT
+                </th>
+
+                <th>
+                  MANAGER
+                </th>
+
+                <th>
+                  STATUS
+                </th>
+
                 <th></th>
+
               </tr>
 
             </thead>
@@ -2043,17 +2301,22 @@ function accountsPage() {
 
               ${
                 list
-                  .map(a =>
-                    accountTableRow(a)
+                  .map(
+                    a =>
+                      accountTableRow(
+                        a
+                      )
                   )
                   .join('') ||
                 `
                   <tr>
                     <td colspan="7">
+
                       ${emptyBlock(
                         'No accounts found',
                         'Try another search or add an account.'
                       )}
+
                     </td>
                   </tr>
                 `
@@ -2074,7 +2337,9 @@ function accountsPage() {
 function accountTableRow(a) {
   const d =
     state.data.devices.find(
-      x => x.id === a.device_id
+      x =>
+        x.id ===
+        a.device_id
     );
 
   return `
@@ -2100,7 +2365,9 @@ function accountTableRow(a) {
 
       <td>
 
-        <span class="device-chip">
+        <span
+          class="device-chip"
+        >
 
           <i
             class="device-dot"
@@ -2143,13 +2410,18 @@ function accountTableRow(a) {
       <td>
 
         <span
-          class="status-chip ${
-            a.status === 'Active'
-              ? 'green'
-              : a.status === 'Paused'
-                ? 'gray'
-                : 'orange'
-          }"
+          class="
+            status-chip
+            ${
+              a.status ===
+              'Active'
+                ? 'green'
+                : a.status ===
+                    'Paused'
+                  ? 'gray'
+                  : 'orange'
+            }
+          "
         >
           ${esc(
             a.status ||
@@ -2182,7 +2454,9 @@ function accountTableRow(a) {
 function accountPage() {
   const a =
     state.data.accounts.find(
-      x => x.id === state.route.id
+      x =>
+        x.id ===
+        state.route.id
     );
 
   if (!a) {
@@ -2194,7 +2468,9 @@ function accountPage() {
 
   const d =
     state.data.devices.find(
-      x => x.id === a.device_id
+      x =>
+        x.id ===
+        a.device_id
     );
 
   const m =
@@ -2215,7 +2491,9 @@ function accountPage() {
         <div class="detail-title">
 
           <i
-            style="background:${deviceColor(d)}"
+            style="
+              background:${deviceColor(d)}
+            "
           ></i>
 
           <div>
@@ -2225,7 +2503,9 @@ function accountPage() {
             </span>
 
             <h2>
-              @${esc(a.username)}
+              @${esc(
+                a.username
+              )}
             </h2>
 
             <p>
@@ -2261,7 +2541,6 @@ function accountPage() {
 
       <div class="three-panels">
 
-
         <section class="panel">
 
           <div class="panel-head">
@@ -2282,24 +2561,33 @@ function accountPage() {
 
           <div class="profile">
 
-            <div class="profile-icon">
+            <div
+              class="profile-icon"
+            >
               @
             </div>
 
             <div>
 
               <b>
-                @${esc(a.username)}
+                @${esc(
+                  a.username
+                )}
               </b>
 
               <span
-                class="status-chip ${
-                  a.status === 'Active'
-                    ? 'green'
-                    : a.status === 'Paused'
-                      ? 'gray'
-                      : 'orange'
-                }"
+                class="
+                  status-chip
+                  ${
+                    a.status ===
+                    'Active'
+                      ? 'green'
+                      : a.status ===
+                          'Paused'
+                        ? 'gray'
+                        : 'orange'
+                  }
+                "
               >
                 ${esc(
                   a.status ||
@@ -2360,7 +2648,10 @@ function accountPage() {
 
           <button
             class="linked"
-            data-nav="device/${d?.id || ''}"
+            data-nav="device/${
+              d?.id ||
+              ''
+            }"
           >
 
             <i
@@ -2422,7 +2713,10 @@ function accountPage() {
 
           <button
             class="linked"
-            data-nav="manager/${m?.id || ''}"
+            data-nav="manager/${
+              m?.id ||
+              ''
+            }"
           >
 
             <i
@@ -2550,13 +2844,13 @@ function managersPage() {
 
       </section>
 
-
       <div class="card-grid">
 
         ${
           state.data.managers
-            .map(m =>
-              managerCard(m)
+            .map(
+              m =>
+                managerCard(m)
             )
             .join('') ||
           emptyBlock(
@@ -2616,7 +2910,9 @@ function managerCard(m) {
 
       </button>
 
-      <div class="manager-metrics">
+      <div
+        class="manager-metrics"
+      >
 
         <span>
           <b>
@@ -2661,7 +2957,9 @@ function managerCard(m) {
 function managerPage() {
   const m =
     state.data.managers.find(
-      x => x.id === state.route.id
+      x =>
+        x.id ===
+        state.route.id
     );
 
   if (!m) {
@@ -2673,7 +2971,9 @@ function managerPage() {
 
   const ac =
     state.data.accounts.filter(
-      a => a.manager_id === m.id
+      a =>
+        a.manager_id ===
+        m.id
     );
 
   return `
@@ -2691,7 +2991,9 @@ function managerPage() {
         <div class="detail-title">
 
           <i
-            style="background:${m.color}"
+            style="
+              background:${m.color}
+            "
           ></i>
 
           <div>
@@ -2747,7 +3049,7 @@ function managerPage() {
 
             <p>
               The manager line is
-              ${esc(m.color)}
+              ${m.color}
               so the responsible person
               is easy to identify.
             </p>
@@ -2760,8 +3062,12 @@ function managerPage() {
 
           ${
             ac
-              .map(a =>
-                managerFlow(a, m)
+              .map(
+                a =>
+                  managerFlow(
+                    a,
+                    m
+                  )
               )
               .join('') ||
             emptyBlock(
@@ -2776,7 +3082,6 @@ function managerPage() {
 
 
       <div class="three-panels">
-
 
         <section class="panel">
 
@@ -2796,7 +3101,12 @@ function managerPage() {
 
           </div>
 
-          <div class="profile center">
+          <div
+            class="
+              profile
+              center
+            "
+          >
 
             <i
               class="avatar huge"
@@ -2824,11 +3134,14 @@ function managerPage() {
             </span>
 
             <span
-              class="status-chip ${
-                m.active === false
-                  ? 'gray'
-                  : 'green'
-              }"
+              class="
+                status-chip
+                ${
+                  m.active === false
+                    ? 'gray'
+                    : 'green'
+                }
+              "
             >
               ${
                 m.active === false
@@ -2871,42 +3184,45 @@ function managerPage() {
                   )
                 )
               ]
-                .map(id => {
-                  const d =
-                    state.data.devices.find(
-                      x =>
-                        x.id === id
-                    );
-
-                  return `
-                    <button
-                      data-nav="device/${id}"
-                    >
-
-                      <i
-                        class="device-dot"
-                        style="
-                          background:${deviceColor(d)}
-                        "
-                      ></i>
-
-                      ${esc(
-                        d?.name ||
-                        'Unknown'
-                      )}
-
-                      <span>
-                        ${countDevice(
+                .map(
+                  id => {
+                    const d =
+                      state.data.devices.find(
+                        x =>
+                          x.id ===
                           id
+                      );
+
+                    return `
+                      <button
+                        data-nav="device/${id}"
+                      >
+
+                        <i
+                          class="device-dot"
+                          style="
+                            background:${deviceColor(d)}
+                          "
+                        ></i>
+
+                        ${esc(
+                          d?.name ||
+                          'Unknown'
                         )}
-                        accounts
-                      </span>
 
-                      →
+                        <span>
+                          ${countDevice(
+                            id
+                          )}
+                          accounts
+                        </span>
 
-                    </button>
-                  `;
-                })
+                        →
+
+                      </button>
+                    `;
+                  }
+                )
                 .join('') ||
               '<div class="muted">No devices assigned.</div>'
             }
@@ -2979,7 +3295,9 @@ function managerPage() {
 function managerFlow(a, m) {
   const d =
     state.data.devices.find(
-      x => x.id === a.device_id
+      x =>
+        x.id ===
+        a.device_id
     );
 
   return `
@@ -3101,55 +3419,68 @@ function workflowPage() {
 
         <div class="workflow-tools">
 
-          <div class="workflow-legend">
+          <div
+            class="workflow-legend"
+          >
 
-            ${orderedDevices()
-              .map(
-                d => `
-                  <span>
+            ${
+              orderedDevices()
+                .map(
+                  d =>
+                    `
+                    <span>
 
-                    <i
-                      style="
-                        background:${deviceColor(d)}
-                      "
-                    ></i>
+                      <i
+                        style="
+                          background:${deviceColor(d)}
+                        "
+                      ></i>
 
-                    ${esc(
-                      d.identifier ||
-                      d.name
-                    )}
+                      ${esc(
+                        d.identifier ||
+                        d.name
+                      )}
 
-                  </span>
-                `
-              )
-              .join('')}
+                    </span>
+                    `
+                )
+                .join('')
+            }
 
-            ${managers
-              .map(
-                m => `
-                  <span>
+            ${
+              managers
+                .map(
+                  m =>
+                    `
+                    <span>
 
-                    <i
-                      style="
-                        background:${
-                          m.color ||
-                          '#64748b'
-                        }
-                      "
-                    ></i>
+                      <i
+                        style="
+                          background:${
+                            m.color ||
+                            '#64748b'
+                          }
+                        "
+                      ></i>
 
-                    ${esc(m.name)}
+                      ${esc(
+                        m.name
+                      )}
 
-                  </span>
-                `
-              )
-              .join('')}
+                    </span>
+                    `
+                )
+                .join('')
+            }
 
           </div>
 
-
           <button
-            class="btn secondary wf-reset-btn"
+            class="
+              btn
+              secondary
+              wf-reset-btn
+            "
             data-wf-reset
           >
             ↕ Reset order
@@ -3168,12 +3499,20 @@ function workflowPage() {
         "
       >
 
-        <div class="workflow-head">
+        <div
+          class="workflow-head"
+        >
+          <span>
+            DEVICE
+          </span>
 
-          <span>DEVICE</span>
-          <span>TIKTOK ACCOUNT</span>
-          <span>TEAM MEMBER</span>
+          <span>
+            TIKTOK ACCOUNT
+          </span>
 
+          <span>
+            TEAM MEMBER
+          </span>
         </div>
 
         <div
@@ -3297,7 +3636,14 @@ function workflowPage() {
         color: #fff;
         font-weight: 900;
         font-size: 10px;
-        box-shadow: 0 2px 8px rgba(15,39,66,.08);
+        box-shadow:
+          0 2px 8px
+          rgba(
+            15,
+            39,
+            66,
+            .08
+          );
       }
 
       .wf-device-title b {
@@ -3370,47 +3716,29 @@ function workflowPage() {
       }
 
       .wf-flow-path {
-        stroke-dasharray: 7 11;
+        stroke-dasharray: 5 8;
         animation:
           wfFlow
-          2.2s
+          2.6s
           linear
           infinite;
       }
 
       .wf-flow-path.slow {
-        animation-duration: 2.7s;
+        animation-duration: 3.1s;
       }
 
       .wf-flow-arrow {
-        filter:
-          drop-shadow(
-            0 1px 1px
-            rgba(15,39,66,.14)
-          );
-        opacity: .9;
+        opacity: .95;
       }
 
-      .wf-moving-arrow {
-        filter:
-          drop-shadow(
-            0 1px 2px
-            rgba(15,39,66,.18)
-          );
+      .wf-flow-arrow.small {
+        filter: none;
       }
 
       @keyframes wfFlow {
         to {
-          stroke-dashoffset: -36;
-        }
-      }
-
-      @keyframes wfPulse {
-        0%,100% {
-          opacity: .55;
-        }
-        50% {
-          opacity: 1;
+          stroke-dashoffset: -26;
         }
       }
 
@@ -3437,7 +3765,12 @@ function workflowPage() {
         gap: 8px;
         box-shadow:
           0 4px 14px
-          rgba(15,39,66,.04);
+          rgba(
+            15,
+            39,
+            66,
+            .04
+          );
         cursor: pointer;
         text-align: left;
       }
@@ -3487,13 +3820,21 @@ function workflowPage() {
 
       .wf-account-node:hover,
       .wf-manager-node:hover {
-        transform: translateY(-1px);
+        transform:
+          translateY(-1px);
+
         box-shadow:
           0 5px 16px
-          rgba(15,39,66,.08);
+          rgba(
+            15,
+            39,
+            66,
+            .08
+          );
       }
 
-      .wf-account-node .account-icon {
+      .wf-account-node
+      .account-icon {
         width: 28px;
         height: 28px;
         display: grid;
@@ -3537,14 +3878,16 @@ function workflowPage() {
         transition: .15s;
       }
 
-      .wf-manager-node .manager-bar {
-        width: 5px;
-        height: 32px;
+      .wf-manager-node
+      .manager-bar {
+        width: 4px;
+        height: 30px;
         border-radius: 6px;
         flex: none;
       }
 
-      .wf-manager-node .manager-avatar {
+      .wf-manager-node
+      .manager-avatar {
         width: 28px;
         height: 28px;
         border-radius: 8px;
@@ -3560,24 +3903,8 @@ function workflowPage() {
         flex: 1;
       }
 
-      .wf-account-actions {
-        display: flex;
-        gap: 4px;
-      }
+      @media(max-width:780px) {
 
-      .wf-account-actions button {
-        border: 0;
-        background: transparent;
-        color: #98a1ab;
-        font-size: 12px;
-        cursor: pointer;
-      }
-
-      .wf-account-actions button:hover {
-        color: #33445a;
-      }
-
-      @media (max-width: 780px) {
         .wf-canvas {
           grid-template-columns: 1fr;
         }
@@ -3604,6 +3931,7 @@ function workflowPage() {
         .wf-device-node {
           width: 100%;
         }
+
       }
 
     </style>
@@ -3617,7 +3945,9 @@ function workflowGroupV2(
 ) {
   const ac =
     state.data.accounts.filter(
-      a => a.device_id === d.id
+      a =>
+        a.device_id ===
+        d.id
     );
 
   const dc =
@@ -3641,8 +3971,9 @@ function workflowGroupV2(
     ac
       .map(
         (a, i) => {
+
           const y =
-            (i + 0.5) *
+            (i + .5) *
             rowH;
 
           const m =
@@ -3655,113 +3986,133 @@ function workflowGroupV2(
             '#64748b';
 
           const p1 =
-            `M 26 ${deviceY} C 29 ${deviceY}, 31 ${y}, 34 ${y}`;
+            `M 26 ${deviceY}
+             C 29 ${deviceY},
+               31 ${y},
+               34 ${y}`;
 
           const p2 =
-            `M 66 ${y} C 69 ${y}, 71 ${y}, 74 ${y}`;
+            `M 66 ${y}
+             C 69 ${y},
+               71 ${y},
+               74 ${y}`;
+
+          const flowId1 =
+            `flow-device-${d.id}-${i}`
+              .replace(
+                /[^a-zA-Z0-9_-]/g,
+                ''
+              );
+
+          const flowId2 =
+            `flow-manager-${d.id}-${i}`
+              .replace(
+                /[^a-zA-Z0-9_-]/g,
+                ''
+              );
 
           return `
             <path
+              id="${flowId1}"
               class="wf-flow-path"
               d="${p1}"
               fill="none"
               stroke="${dc}"
-              stroke-width="2.5"
+              stroke-width="1.4"
               stroke-linecap="round"
             />
 
             <path
-              class="wf-flow-path slow"
+              id="${flowId2}"
+              class="
+                wf-flow-path
+                slow
+              "
               d="${p2}"
               fill="none"
               stroke="${mc}"
-              stroke-width="2.5"
+              stroke-width="1.4"
               stroke-linecap="round"
             />
 
             <polygon
-              class="wf-flow-arrow"
-              points="0,-3.5 8,0 0,3.5"
+              class="
+                wf-flow-arrow
+                small
+              "
+              points="0,-2.2 4.5,0 0,2.2"
               fill="${dc}"
             >
               <animateMotion
-                dur="2.2s"
+                dur="2.4s"
                 repeatCount="indefinite"
                 rotate="auto"
                 path="${p1}"
               />
             </polygon>
-
-            <circle
-              class="wf-moving-arrow"
-              r="2.7"
-              fill="${dc}"
-            >
-              <animateMotion
-                dur="2.2s"
-                begin="-.8s"
-                repeatCount="indefinite"
-                rotate="auto"
-                path="${p1}"
-              />
-            </circle>
 
             <polygon
-              class="wf-flow-arrow"
-              points="0,-3.5 8,0 0,3.5"
+              class="
+                wf-flow-arrow
+                small
+              "
+              points="0,-2.2 4.5,0 0,2.2"
+              fill="${dc}"
+            >
+              <animateMotion
+                dur="2.4s"
+                begin="-1.2s"
+                repeatCount="indefinite"
+                rotate="auto"
+                path="${p1}"
+              />
+            </polygon>
+
+            <polygon
+              class="
+                wf-flow-arrow
+                small
+              "
+              points="0,-2.2 4.5,0 0,2.2"
               fill="${mc}"
             >
               <animateMotion
-                dur="2.7s"
+                dur="2.8s"
                 repeatCount="indefinite"
                 rotate="auto"
                 path="${p2}"
               />
             </polygon>
 
-            <circle
-              class="wf-moving-arrow"
-              r="2.7"
+            <polygon
+              class="
+                wf-flow-arrow
+                small
+              "
+              points="0,-2.2 4.5,0 0,2.2"
               fill="${mc}"
             >
               <animateMotion
-                dur="2.7s"
-                begin="-1s"
+                dur="2.8s"
+                begin="-1.4s"
                 repeatCount="indefinite"
                 rotate="auto"
                 path="${p2}"
               />
-            </circle>
-
-            <circle
-              cx="34"
-              cy="${y}"
-              r="3.2"
-              fill="${dc}"
-            />
-
-            <circle
-              cx="66"
-              cy="${y}"
-              r="3.2"
-              fill="${dc}"
-            />
-
-            <circle
-              cx="74"
-              cy="${y}"
-              r="3.2"
-              fill="${mc}"
-            />
+            </polygon>
           `;
         }
       )
       .join('');
 
   return `
-    <div class="workflow-group-v2">
+    <div
+      class="workflow-group-v2"
+    >
 
-      <div class="wf-group-title">
+      <div
+        class="wf-group-title"
+      >
 
         <button
           class="wf-device-title"
@@ -3784,7 +4135,8 @@ function workflowGroupV2(
                 d.identifier ||
                 d.name
               )}
-              · ${esc(d.name)}
+              ·
+              ${esc(d.name)}
             </b>
 
             <small>
@@ -3802,7 +4154,9 @@ function workflowGroupV2(
         </button>
 
 
-        <div class="wf-group-actions">
+        <div
+          class="wf-group-actions"
+        >
 
           <button
             class="wf-move-btn"
@@ -3821,7 +4175,8 @@ function workflowGroupV2(
             class="wf-move-btn"
             data-wf-down="${d.id}"
             ${
-              index === total - 1
+              index ===
+              total - 1
                 ? 'disabled'
                 : ''
             }
@@ -3861,7 +4216,9 @@ function workflowGroupV2(
                 preserveAspectRatio="none"
                 aria-hidden="true"
               >
+
                 ${svgLines}
+
               </svg>
 
 
@@ -3903,150 +4260,190 @@ function workflowGroupV2(
               </div>
 
 
-              <div class="wf-column">
+              <div
+                class="wf-column"
+              >
 
-                ${ac
-                  .map(
-                    a => `
-                      <div
-                        class="wf-account-row"
-                      >
+                ${
+                  ac
+                    .map(
+                      a => {
+                        const m =
+                          manager(
+                            a.manager_id
+                          );
 
-                        <button
-                          class="wf-account-node"
-                          data-nav="account/${a.id}"
-                        >
+                        const mc =
+                          m?.color ||
+                          '#64748b';
 
-                          <i
-                            class="account-icon"
-                            style="
-                              border-color:${dc};
-                              color:${dc}
+                        return `
+                          <div
+                            class="
+                              wf-account-row
                             "
                           >
-                            @
-                          </i>
 
-                          <span
-                            class="wf-account-meta"
-                          >
+                            <button
+                              class="
+                                wf-account-node
+                              "
+                              data-nav="account/${a.id}"
+                            >
 
-                            <b>
-                              @${esc(
-                                a.username
-                              )}
-                            </b>
+                              <i
+                                class="
+                                  account-icon
+                                "
+                                style="
+                                  border-color:${dc};
+                                  color:${dc}
+                                "
+                              >
+                                @
+                              </i>
 
-                            <small>
-                              ${esc(
-                                a.gmail ||
-                                'Gmail not added'
-                              )}
+                              <span
+                                class="
+                                  wf-account-meta
+                                "
+                              >
 
-                              ${
-                                a.content_name
-                                  ? ` · ${esc(
-                                      a.content_name
-                                    )}`
-                                  : ''
-                              }
-                            </small>
+                                <b>
+                                  @${esc(
+                                    a.username
+                                  )}
+                                </b>
 
-                          </span>
+                                <small>
+                                  ${esc(
+                                    a.gmail ||
+                                    'Gmail not added'
+                                  )}
+                                  ${
+                                    a.content_name
+                                      ? ' · ' +
+                                        esc(
+                                          a.content_name
+                                        )
+                                      : ''
+                                  }
+                                </small>
 
-                        </button>
+                              </span>
 
-                      </div>
-                    `
-                  )
-                  .join('')}
+                            </button>
+
+                          </div>
+                        `;
+                      }
+                    )
+                    .join('')
+                }
 
               </div>
 
 
-              <div class="wf-column">
+              <div
+                class="wf-column"
+              >
 
-                ${ac
-                  .map(
-                    a => {
-                      const m =
-                        manager(
-                          a.manager_id
-                        );
+                ${
+                  ac
+                    .map(
+                      a => {
 
-                      const mc =
-                        m?.color ||
-                        '#64748b';
+                        const m =
+                          manager(
+                            a.manager_id
+                          );
 
-                      return `
-                        <div
-                          class="wf-manager-row"
-                        >
+                        const mc =
+                          m?.color ||
+                          '#64748b';
 
-                          <button
-                            class="wf-manager-node"
-                            data-nav="manager/${
-                              m?.id ||
-                              ''
-                            }"
+                        return `
+                          <div
+                            class="
+                              wf-manager-row
+                            "
                           >
 
-                            <i
-                              class="manager-bar"
-                              style="
-                                background:${mc}
+                            <button
+                              class="
+                                wf-manager-node
                               "
-                            ></i>
-
-                            <span
-                              class="manager-avatar"
-                              style="
-                                background:${mc}18;
-                                color:${mc}
-                              "
-                            >
-                              ${esc(
-                                initials(
-                                  m?.name ||
-                                  'U'
-                                )
-                              )}
-                            </span>
-
-                            <span
-                              class="wf-account-meta"
+                              data-nav="manager/${
+                                m?.id ||
+                                ''
+                              }"
                             >
 
-                              <b>
+                              <i
+                                class="
+                                  manager-bar
+                                "
+                                style="
+                                  background:${mc}
+                                "
+                              ></i>
+
+                              <span
+                                class="
+                                  manager-avatar
+                                "
+                                style="
+                                  background:${mc}18;
+                                  color:${mc}
+                                "
+                              >
                                 ${esc(
-                                  m?.name ||
-                                  'Unassigned'
+                                  initials(
+                                    m?.name ||
+                                    'U'
+                                  )
                                 )}
-                              </b>
+                              </span>
 
-                              <small>
-                                ${esc(
-                                  m?.role ||
-                                  'Needs assignment'
-                                )}
-                              </small>
+                              <span
+                                class="
+                                  wf-account-meta
+                                "
+                              >
 
-                            </span>
+                                <b>
+                                  ${esc(
+                                    m?.name ||
+                                    'Unassigned'
+                                  )}
+                                </b>
 
-                          </button>
+                                <small>
+                                  ${esc(
+                                    m?.role ||
+                                    'Needs assignment'
+                                  )}
+                                </small>
 
-                        </div>
-                      `;
-                    }
-                  )
-                  .join('')}
+                              </span>
+
+                            </button>
+
+                          </div>
+                        `;
+                      }
+                    )
+                    .join('')
+                }
 
               </div>
 
             </div>
           `
           : `
-            <div class="empty-row">
+            <div
+              class="empty-row"
+            >
               No accounts on this device.
             </div>
           `
@@ -4411,11 +4808,13 @@ function openModal(
     };
   }
 
-  state.modal.form = form;
+  state.modal.form =
+    form;
 
   state.modal.custom =
     Object.entries(
-      form.custom_fields || {}
+      form.custom_fields ||
+        {}
     );
 
   renderModal();
@@ -4470,7 +4869,8 @@ function renderModal() {
             <input
               data-field="identifier"
               value="${esc(
-                f.identifier || ''
+                f.identifier ||
+                ''
               )}"
               placeholder="Device #1"
             >
@@ -4479,7 +4879,9 @@ function renderModal() {
           <label>
             Status
 
-            <select data-field="status">
+            <select
+              data-field="status"
+            >
 
               <option
                 ${
@@ -4521,46 +4923,52 @@ function renderModal() {
         </div>
 
         <label>
+
           Device line color
 
-          <div class="color-options">
+          <div
+            class="color-options"
+          >
 
-            ${DEVICE_COLORS
-              .map(
-                c =>
-                  `
-                  <button
-                    type="button"
-                    class="
-                      color-choice
-                      ${
-                        f.color ===
-                        c[0]
-                          ? 'selected'
-                          : ''
-                      }
-                    "
-                    data-color-device="${c[0]}"
-                  >
-
-                    <i
-                      style="
-                        background:${c[2]}
+            ${
+              DEVICE_COLORS
+                .map(
+                  c =>
+                    `
+                    <button
+                      type="button"
+                      class="
+                        color-choice
+                        ${
+                          f.color ===
+                          c[0]
+                            ? 'selected'
+                            : ''
+                        }
                       "
-                    ></i>
+                      data-color-device="${c[0]}"
+                    >
 
-                    ${c[1]}
+                      <i
+                        style="
+                          background:${c[2]}
+                        "
+                      ></i>
 
-                  </button>
-                `
-              )
-              .join('')}
+                      ${c[1]}
+
+                    </button>
+                    `
+                )
+                .join('')
+            }
 
           </div>
 
         </label>
 
         <label>
+
           Notes
 
           <textarea
@@ -4568,11 +4976,13 @@ function renderModal() {
           >${esc(
             f.notes || ''
           )}</textarea>
+
         </label>
       `
       : type === 'account'
         ? `
           <label>
+
             TikTok account name / username
 
             <input
@@ -4583,11 +4993,13 @@ function renderModal() {
               required
               placeholder="exampleaccount"
             >
+
           </label>
 
           <div class="two-col">
 
             <label>
+
               Gmail
 
               <input
@@ -4598,12 +5010,16 @@ function renderModal() {
                 )}"
                 placeholder="account@gmail.com"
               >
+
             </label>
 
             <label>
+
               Status
 
-              <select data-field="status">
+              <select
+                data-field="status"
+              >
 
                 <option
                   ${
@@ -4647,43 +5063,47 @@ function renderModal() {
           <div class="two-col">
 
             <label>
+
               Mobile device
 
               <select
                 data-field="device_id"
               >
 
-                ${state.data.devices
-                  .map(
-                    d =>
-                      `
-                      <option
-                        value="${d.id}"
-                        ${
-                          f.device_id ===
-                          d.id
-                            ? 'selected'
-                            : ''
-                        }
-                      >
-                        ${esc(
-                          d.name
-                        )}
-                        ·
-                        ${esc(
-                          d.identifier ||
-                          d.id
-                        )}
-                      </option>
-                    `
-                  )
-                  .join('')}
+                ${
+                  state.data.devices
+                    .map(
+                      d =>
+                        `
+                        <option
+                          value="${d.id}"
+                          ${
+                            f.device_id ===
+                            d.id
+                              ? 'selected'
+                              : ''
+                          }
+                        >
+                          ${esc(
+                            d.name
+                          )}
+                          ·
+                          ${esc(
+                            d.identifier ||
+                            d.id
+                          )}
+                        </option>
+                        `
+                    )
+                    .join('')
+                }
 
               </select>
 
             </label>
 
             <label>
+
               Manager
 
               <select
@@ -4694,26 +5114,28 @@ function renderModal() {
                   Unassigned
                 </option>
 
-                ${state.data.managers
-                  .map(
-                    m =>
-                      `
-                      <option
-                        value="${m.id}"
-                        ${
-                          f.manager_id ===
-                          m.id
-                            ? 'selected'
-                            : ''
-                        }
-                      >
-                        ${esc(
-                          m.name
-                        )}
-                      </option>
-                    `
-                  )
-                  .join('')}
+                ${
+                  state.data.managers
+                    .map(
+                      m =>
+                        `
+                        <option
+                          value="${m.id}"
+                          ${
+                            f.manager_id ===
+                            m.id
+                              ? 'selected'
+                              : ''
+                          }
+                        >
+                          ${esc(
+                            m.name
+                          )}
+                        </option>
+                        `
+                    )
+                    .join('')
+                }
 
               </select>
 
@@ -4722,18 +5144,22 @@ function renderModal() {
           </div>
 
           <label>
+
             Content / category
 
             <input
               data-field="content_name"
               value="${esc(
-                f.content_name || ''
+                f.content_name ||
+                ''
               )}"
               placeholder="Cleaning, business, food…"
             >
+
           </label>
 
           <label>
+
             Notes
 
             <textarea
@@ -4741,10 +5167,12 @@ function renderModal() {
             >${esc(
               f.notes || ''
             )}</textarea>
+
           </label>
         `
         : `
           <label>
+
             Full name
 
             <input
@@ -4755,11 +5183,13 @@ function renderModal() {
               required
               placeholder="Umm-e-Hania"
             >
+
           </label>
 
           <div class="two-col">
 
             <label>
+
               Role
 
               <input
@@ -4769,9 +5199,11 @@ function renderModal() {
                   'Account Manager'
                 )}"
               >
+
             </label>
 
             <label>
+
               Status
 
               <select
@@ -4807,33 +5239,38 @@ function renderModal() {
           </div>
 
           <label>
+
             Manager line color
 
-            <div class="manager-colors">
+            <div
+              class="manager-colors"
+            >
 
-              ${MANAGER_COLORS
-                .map(
-                  c =>
-                    `
-                    <button
-                      type="button"
-                      class="
-                        manager-color
-                        ${
-                          f.color ===
-                          c
-                            ? 'selected'
-                            : ''
-                        }
-                      "
-                      style="
-                        background:${c}
-                      "
-                      data-manager-color="${c}"
-                    ></button>
-                  `
-                )
-                .join('')}
+              ${
+                MANAGER_COLORS
+                  .map(
+                    c =>
+                      `
+                      <button
+                        type="button"
+                        class="
+                          manager-color
+                          ${
+                            f.color ===
+                            c
+                              ? 'selected'
+                              : ''
+                          }
+                        "
+                        style="
+                          background:${c}
+                        "
+                        data-manager-color="${c}"
+                      ></button>
+                      `
+                  )
+                  .join('')
+              }
 
             </div>
 
@@ -4845,7 +5282,9 @@ function renderModal() {
       .map(
         (r, i) =>
           `
-          <div class="custom-row">
+          <div
+            class="custom-row"
+          >
 
             <input
               data-custom-key="${i}"
@@ -4876,107 +5315,118 @@ function renderModal() {
       )
       .join('');
 
-  $('#modalRoot').innerHTML = `
-    <div
-      class="modal-backdrop"
-      id="modalBackdrop"
-    >
+  $('#modalRoot')
+    .innerHTML = `
+      <div
+        class="modal-backdrop"
+        id="modalBackdrop"
+      >
 
-      <div class="modal">
+        <div class="modal">
 
-        <div class="modal-head">
-
-          <div>
-
-            <span class="eyebrow">
-              EDITABLE RECORD
-            </span>
-
-            <h3>
-              ${title}
-            </h3>
-
-            <p>
-              Save once and every
-              connected page will
-              use the updated data.
-            </p>
-
-          </div>
-
-          <button
-            class="icon-btn"
-            id="modalClose"
-          >
-            ×
-          </button>
-
-        </div>
-
-
-        <form
-          id="dataForm"
-          class="form-stack"
-        >
-
-          ${fields}
-
-
-          <div class="custom-section">
+          <div class="modal-head">
 
             <div>
 
-              <b>
-                Custom fields
-              </b>
+              <span class="eyebrow">
+                EDITABLE RECORD
+              </span>
 
-              <small>
-                Add extra information
-                without changing
-                the SQL table.
-              </small>
+              <h3>
+                ${title}
+              </h3>
+
+              <p>
+                Save once and every
+                connected page will
+                use the updated data.
+              </p>
 
             </div>
 
             <button
-              type="button"
-              class="btn secondary"
-              id="addCustom"
+              class="icon-btn"
+              id="modalClose"
             >
-              ＋ Add field
+              ×
             </button>
 
           </div>
 
 
-          ${custom}
+          <form
+            id="dataForm"
+            class="form-stack"
+          >
 
+            ${fields}
 
-          <div class="modal-footer">
-
-            <button
-              type="button"
-              class="btn secondary"
-              id="cancelModal"
+            <div
+              class="custom-section"
             >
-              Cancel
-            </button>
 
-            <button
-              type="submit"
-              class="btn primary"
+              <div>
+
+                <b>
+                  Custom fields
+                </b>
+
+                <small>
+                  Add extra information
+                  without changing
+                  the SQL table.
+                </small>
+
+              </div>
+
+              <button
+                type="button"
+                class="
+                  btn
+                  secondary
+                "
+                id="addCustom"
+              >
+                ＋ Add field
+              </button>
+
+            </div>
+
+            ${custom}
+
+            <div
+              class="modal-footer"
             >
-              ✓ Save details
-            </button>
 
-          </div>
+              <button
+                type="button"
+                class="
+                  btn
+                  secondary
+                "
+                id="cancelModal"
+              >
+                Cancel
+              </button>
 
-        </form>
+              <button
+                type="submit"
+                class="
+                  btn
+                  primary
+                "
+              >
+                ✓ Save details
+              </button>
+
+            </div>
+
+          </form>
+
+        </div>
 
       </div>
-
-    </div>
-  `;
+    `;
 
   $('#modalClose')
     .onclick =
@@ -5017,11 +5467,7 @@ function renderModal() {
           () => {
             state.modal.form[
               el.dataset.field
-            ] =
-              el.tagName ===
-              'SELECT'
-                ? el.value
-                : el.value;
+            ] = el.value;
           }
         )
     );
@@ -5031,7 +5477,8 @@ function renderModal() {
       b =>
         b.onclick = () => {
           state.modal.form.color =
-            b.dataset.colorDevice;
+            b.dataset
+              .colorDevice;
 
           renderModal();
         }
@@ -5042,7 +5489,8 @@ function renderModal() {
       b =>
         b.onclick = () => {
           state.modal.form.color =
-            b.dataset.managerColor;
+            b.dataset
+              .managerColor;
 
           renderModal();
         }
@@ -5052,13 +5500,15 @@ function renderModal() {
     .forEach(
       b =>
         b.onclick = () => {
-          state.modal.custom.splice(
-            Number(
-              b.dataset
-                .customRemove
-            ),
-            1
-          );
+
+          state.modal.custom
+            .splice(
+              Number(
+                b.dataset
+                  .customRemove
+              ),
+              1
+            );
 
           renderModal();
         }
@@ -5072,7 +5522,8 @@ function renderModal() {
 function closeModal() {
   state.modal = null;
 
-  $('#modalRoot').innerHTML =
+  $('#modalRoot')
+    .innerHTML =
     '';
 }
 
@@ -5092,9 +5543,12 @@ async function saveModal(e) {
   $$('#dataForm [data-field]')
     .forEach(
       el => {
-        if (el.dataset.field) {
-          f[el.dataset.field] =
-            el.value;
+        if (
+          el.dataset.field
+        ) {
+          f[
+            el.dataset.field
+          ] = el.value;
         }
       }
     );
@@ -5103,7 +5557,8 @@ async function saveModal(e) {
     type === 'manager'
   ) {
     f.active =
-      f.active !== 'false';
+      f.active !==
+      'false';
   }
 
   if (
@@ -5130,20 +5585,26 @@ async function saveModal(e) {
 
   s.custom.forEach(
     ([k, v], i) => {
+
       const key =
         $(
           `[data-custom-key="${i}"]`
-        )?.value.trim();
+        )
+          ?.value
+          .trim();
 
       const val =
         $(
           `[data-custom-val="${i}"]`
-        )?.value.trim();
+        )
+          ?.value
+          .trim();
 
       if (key) {
         custom[key] =
           val || '';
       }
+
     }
   );
 
@@ -5164,7 +5625,8 @@ async function saveModal(e) {
             f.name.trim(),
 
           identifier:
-            f.identifier?.trim() ||
+            f.identifier
+              ?.trim() ||
             null,
 
           color:
@@ -5176,7 +5638,8 @@ async function saveModal(e) {
             'Active',
 
           notes:
-            f.notes?.trim() ||
+            f.notes
+              ?.trim() ||
             null,
 
           custom_fields:
@@ -5188,7 +5651,8 @@ async function saveModal(e) {
               f.username.trim(),
 
             gmail:
-              f.gmail?.trim() ||
+              f.gmail
+                ?.trim() ||
               null,
 
             device_id:
@@ -5196,7 +5660,8 @@ async function saveModal(e) {
               null,
 
             content_name:
-              f.content_name?.trim() ||
+              f.content_name
+                ?.trim() ||
               null,
 
             manager_id:
@@ -5208,7 +5673,8 @@ async function saveModal(e) {
               'Active',
 
             notes:
-              f.notes?.trim() ||
+              f.notes
+                ?.trim() ||
               null,
 
             custom_fields:
@@ -5219,11 +5685,14 @@ async function saveModal(e) {
               f.name.trim(),
 
             role:
-              f.role?.trim() ||
+              f.role
+                ?.trim() ||
               'Account Manager',
 
             active:
-              Boolean(f.active),
+              Boolean(
+                f.active
+              ),
 
             color:
               f.color ||
@@ -5234,6 +5703,7 @@ async function saveModal(e) {
           };
 
   try {
+
     await save(
       table,
       payload,
@@ -5255,12 +5725,15 @@ async function saveModal(e) {
                 : 'Team member'
           } added`
     );
+
   } catch (err) {
+
     toast(
       err.message ||
         'Could not save.',
       'error'
     );
+
   }
 }
 
@@ -5275,73 +5748,92 @@ function confirmDelete(
   title,
   text
 ) {
-  $('#modalRoot').innerHTML = `
-    <div class="modal-backdrop">
 
-      <div class="confirm">
+  $('#modalRoot')
+    .innerHTML = `
+      <div
+        class="modal-backdrop"
+      >
 
-        <div class="modal-head">
+        <div class="confirm">
 
-          <div>
+          <div
+            class="modal-head"
+          >
 
-            <span class="eyebrow">
-              CONFIRM
-            </span>
+            <div>
 
-            <h3>
-              ${esc(title)}
-            </h3>
+              <span class="eyebrow">
+                CONFIRM
+              </span>
 
-            <p>
-              ${esc(text)}
-            </p>
+              <h3>
+                ${esc(title)}
+              </h3>
+
+              <p>
+                ${esc(text)}
+              </p>
+
+            </div>
+
+            <button
+              class="icon-btn"
+              id="confirmClose"
+            >
+              ×
+            </button>
 
           </div>
 
-          <button
-            class="icon-btn"
-            id="confirmClose"
+          <div
+            class="modal-footer"
           >
-            ×
-          </button>
 
-        </div>
+            <button
+              class="
+                btn
+                secondary
+              "
+              id="confirmCancel"
+            >
+              Cancel
+            </button>
 
-        <div class="modal-footer">
+            <button
+              class="
+                btn
+                danger
+              "
+              id="confirmOk"
+            >
+              Delete
+            </button>
 
-          <button
-            class="btn secondary"
-            id="confirmCancel"
-          >
-            Cancel
-          </button>
-
-          <button
-            class="btn danger"
-            id="confirmOk"
-          >
-            Delete
-          </button>
+          </div>
 
         </div>
 
       </div>
-
-    </div>
-  `;
+    `;
 
   $('#confirmClose')
     .onclick = () =>
-      ($('#modalRoot').innerHTML =
-        '');
+      (
+        $('#modalRoot')
+          .innerHTML = ''
+      );
 
   $('#confirmCancel')
     .onclick = () =>
-      ($('#modalRoot').innerHTML =
-        '');
+      (
+        $('#modalRoot')
+          .innerHTML = ''
+      );
 
   $('#confirmOk')
-    .onclick = async () => {
+    .onclick =
+    async () => {
 
       await act(
         () =>
@@ -5352,7 +5844,8 @@ function confirmDelete(
         'Deleted'
       );
 
-      $('#modalRoot').innerHTML =
+      $('#modalRoot')
+        .innerHTML =
         '';
 
       navigate(
@@ -5375,10 +5868,13 @@ function toast(
   msg,
   type = 'success'
 ) {
+
   const r =
     $('#toastRoot');
 
-  if (!r) return;
+  if (!r) {
+    return;
+  }
 
   const x =
     document.createElement(
@@ -5394,7 +5890,8 @@ function toast(
   r.appendChild(x);
 
   setTimeout(
-    () => x.remove(),
+    () =>
+      x.remove(),
     2600
   );
 }
