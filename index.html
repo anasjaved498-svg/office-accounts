@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f2742" />
+  <title>Office TikTok Command Center</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="bootStatus" class="boot-status">
+    <div class="boot-card">
+      <div class="brand-icon big">OC</div>
+      <span class="eyebrow">OFFICE COMMAND</span>
+      <h1>Starting website…</h1>
+      <p>Loading the office workspace.</p>
+      <small>If this message stays on screen, make sure you started the project with <code>npm run dev</code> and opened <b>http://localhost:5173</b>.</small>
+    </div>
+  </div>
+  <div id="auth" class="auth-page hidden"></div>
+  <div id="app" class="app hidden">
+    <div id="sideOverlay" class="side-overlay"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">OC</div>
+        <div><strong>Office Command</strong><span>TikTok Operations</span></div>
+        <button class="icon-btn mobile-close" id="closeSide">×</button>
+      </div>
+      <div class="side-label">MAIN</div>
+      <nav id="nav">
+        <button data-route="dashboard" class="nav-item"><span>▦</span>Dashboard</button>
+        <button data-route="workflow" class="nav-item"><span>⌁</span>All Workflow</button>
+        <button data-route="devices" class="nav-item"><span>▣</span>Devices <em id="deviceCount"></em></button>
+        <button data-route="accounts" class="nav-item"><span>@</span>Accounts <em id="accountCount"></em></button>
+        <button data-route="managers" class="nav-item"><span>◎</span>Team Members <em id="managerCount"></em></button>
+      </nav>
+      <div class="side-label">DEVICES</div>
+      <div id="deviceShortcuts" class="device-shortcuts"></div>
+      <div class="side-footer">
+        <div class="system-pill"><i></i><span id="connectionState">Checking connection</span></div>
+        <button id="sideAddAccount" class="btn primary full">＋ Add account</button>
+        <button id="signOutBtn" class="sign-out hidden">↪ Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="top-left">
+          <button class="icon-btn mobile-menu" id="openSide">☰</button>
+          <div>
+            <div class="crumbs" id="crumbs">Office / Dashboard</div>
+            <h1 id="pageTitle">Command Center</h1>
+          </div>
+        </div>
+        <div class="top-actions">
+          <label class="search"><span>⌕</span><input id="globalSearch" type="search" placeholder="Search accounts, Gmail, device…"></label>
+          <button id="refreshBtn" class="btn secondary">↻ Refresh</button>
+          <button id="topAddBtn" class="btn primary">＋ Add account</button>
+        </div>
+      </header>
+      <section id="alerts"></section>
+      <section id="view" class="content"></section>
+    </main>
+  </div>
+
+  <div id="modalRoot"></div>
+  <div id="toastRoot"></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

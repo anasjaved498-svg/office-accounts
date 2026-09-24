@@ -1,0 +1,9 @@
+{
+  "name": "office-tiktok-command-center",
+  "private": true,
+  "version": "3.0.0",
+  "scripts": {
+    "dev": "node server.cjs",
+    "start": "node server.cjs"
+  }
+}
